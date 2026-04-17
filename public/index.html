@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Code Building Challenge</title>
+
+  <link rel="stylesheet" href="style.css"/>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Background Canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Main Content -->
+  <div class="container">
+
+    <p class="top-text">
+      PARTICIPANTS ARE WELCOME TO THE
+    </p>
+
+    <h1>
+      Code Building <br>
+      <span>Challenge</span>
+    </h1>
+
+    <p class="subtitle">
+      Construct Python programs line by line.
+      Test your precision and logic.
+    </p>
+
+    <!-- Buttons -->
+    <div class="buttons">
+
+      <!-- ✅ UPDATED -->
+      <button class="btn home-btn primary" onclick="showSignup()">
+        Sign Up
+      </button>
+
+      <!-- ✅ UPDATED -->
+      <button class="btn home-btn secondary" onclick="showLogin()">
+        Sign In
+      </button>
+
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupForm" class="form hidden">
+
+      <input type="text" id="signupName" placeholder="Full Name">
+
+      <input type="password" id="signupPassword" placeholder="Create Password">
+
+      <input type="password" id="confirmPassword" placeholder="Confirm Password">
+
+      <button class="btn primary" onclick="signupUser()">
+        Create Account
+      </button>
+
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="form hidden">
+
+      <input type="text" id="loginName" placeholder="Username">
+
+      <input type="password" id="loginPassword" placeholder="Password">
+
+      <button class="btn primary" onclick="loginUser()">
+        Login
+      </button>
+
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+  <!-- 🔥 CUSTOM POPUP -->
+  <div id="popup" class="popup hidden">
+    <div class="popup-box">
+
+      <div id="popup-icon" class="popup-icon">!</div>
+
+      <h2 id="popup-title">Error</h2>
+
+      <p id="popup-message">
+        Something went wrong
+      </p>
+
+      <button id="popup-btn" class="btn primary" onclick="closePopup()">
+        OK
+      </button>
+
+    </div>
+  </div>
+
+</body>
+</html>

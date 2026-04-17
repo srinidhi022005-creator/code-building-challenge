@@ -1,0 +1,361 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #070018;
+  color: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* CANVAS */
+#bgCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+/* CONTAINER */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+/* TEXT */
+.top-text {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #9d8cff;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 64px;
+  font-weight: 700;
+}
+
+h1 span {
+  color: #a855f7;
+  text-shadow: 0 0 20px #a855f7;
+}
+
+.subtitle {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #bdb7ff;
+}
+
+/* BUTTONS */
+.buttons {
+  margin-top: 40px;
+  display: center;
+  gap: 40px;
+  justify-content: center;
+}
+
+/* COMMON BUTTON — FIXED SIZE */
+/* COMMON BUTTON — SAFE FIX */
+.btn {
+  padding: 14px 34px;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+
+  border: 2px solid transparent; /* SAME BASE BORDER */
+
+  min-width: 170px; /* ONLY minimum width */
+  text-align: center;
+}
+
+/* PRIMARY */
+.primary {
+  background: linear-gradient(45deg, #7c3aed, #a855f7);
+  color: white;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+}
+
+.primary:hover {
+  transform: scale(1.05);
+}
+
+/* SECONDARY — MATCH BORDER */
+.secondary {
+  background: transparent;
+  border: 2px solid #7c3aed;
+  color: white;
+}
+
+.secondary:hover {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+/* FORM */
+.form {
+  margin-top: 20px;
+}
+
+.form input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* QUESTION */
+.question-container {
+  width: 70%;
+  margin: auto;
+  margin-top: 40px;
+  text-align: center;
+}
+
+/* QUESTION TEXT */
+.question {
+  margin-bottom: 25px;
+  font-size: 22px;
+}
+
+/* OPTIONS */
+.options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.options button {
+  padding: 14px;
+  font-size: 15px;
+  border: 1px solid #7c3aed;
+  background: rgba(255,255,255,0.05);
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.options button:hover {
+  background: #7c3aed;
+}
+
+/* SUBMIT BUTTON */
+.btn.primary {
+  margin-top: 25px;
+}
+
+/* FINAL PAGE */
+.final-box {
+  text-align: center;
+  padding: 40px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+  margin-top: 40px;
+}
+
+.success-title {
+  font-size: 40px;
+  color: #a855f7;
+  text-shadow: 0 0 20px #a855f7;
+}
+
+.success-text {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #ddd;
+}
+
+/* FINAL BUTTONS */
+.review-buttons {
+  margin-top: 25px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* POPUP */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 0, 30, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(6px);
+  z-index: 999;
+}
+
+.hidden {
+  display: none;
+}
+
+.popup-box {
+  width: 350px;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  background: linear-gradient(145deg, #0f0225, #1a0340);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+}
+
+.popup-icon {
+  width: 60px;
+  height: 60px;
+  margin: auto;
+  border-radius: 50%;
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* POPUP BUTTON */
+#popup-btn {
+  margin-top: 10px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(45deg, #7c3aed, #a855f7);
+  color: white;
+  cursor: pointer;
+}
+
+/* SUCCESS / ERROR */
+.popup.success .popup-icon {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.popup.error .popup-icon {
+  background: rgba(255, 0, 0, 0.2);
+  color: red;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+
+  h1 {
+    font-size: 42px;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
+
+  .options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+/* HOMEPAGE BUTTON SIZE FIX */
+.home-btn {
+  width: 180px;
+  height: 54px;
+
+  display: cent;
+  justify-content: flex;
+  align-items: center;
+
+  border: 2px solid transparent;
+}
+
+/* Match border thickness */
+.home-btn.secondary {
+  border: 2px solid #7c3aed;
+}
+/* ========================= */
+/* 🔥 ADMIN FIXES */
+/* ========================= */
+
+/* Data cards restore */
+.card {
+  background: rgba(255,255,255,0.08) !important;
+  padding: 25px !important;
+  border-radius: 15px !important;
+  border: 1px solid #7c3aed !important;
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.3) !important;
+  margin-bottom: 20px;
+}
+
+/* Code block */
+.card pre {
+  background: #000 !important;
+  padding: 15px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+}
+
+/* Scroll wrapper FIX */
+.questions-wrapper {
+  max-height: 65vh;
+  overflow-y: auto;
+  width: 80%;
+  margin: auto;
+}
+
+/* SCROLLBAR STYLE RESTORE */
+.questions-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.questions-wrapper::-webkit-scrollbar-thumb {
+  background: #7c3aed;
+  border-radius: 10px;
+}
+
+/* Admin textarea spacing */
+textarea {
+  width: 85%;
+  margin: 10px 0;
+  padding: 6px;
+
+  border-radius: 10px;
+  border: 1px solid #7c3aed;
+
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: white !important;
+
+  outline: none;
+  resize: vertical;
+
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+/* Placeholder color */
+textarea::placeholder {
+  color: #aaa;
+}
+
+/* Focus effect */
+textarea:focus {
+  border: 1px solid #a855f7;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+/* Admin buttons spacing */
+.card button {
+  margin-top: 10px;
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Access</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- Background -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- ADMIN LOGIN -->
+<div class="container">
+
+  <p class="top-text">RESTRICTED ACCESS</p>
+
+  <h1>
+    Admin <span>Login</span>
+  </h1>
+
+  <div class="form">
+
+    <input type="text" id="adminUser" placeholder="Admin Username">
+
+    <input type="password" id="adminPass" placeholder="Password">
+
+    <button class="btn primary" onclick="adminLogin()">
+      Enter
+    </button>
+
+  </div>
+
+</div>
+
+<!-- 🔥 POPUP -->
+<div id="popup" class="popup hidden">
+  <div class="popup-box">
+
+    <div id="popup-icon" class="popup-icon">!</div>
+
+    <h2 id="popup-title"></h2>
+
+    <p id="popup-message"></p>
+
+    <button id="popup-btn" onclick="closePopup()">OK</button>
+
+  </div>
+</div>
+
+<!-- 🔥 IMPORTANT: Only admin.js -->
+<script src="admin.js"></script>
+
+</body>
+</html>

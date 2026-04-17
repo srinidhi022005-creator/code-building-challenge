@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="container">
+
+  <p class="top-text">ADMIN CONTROL PANEL</p>
+
+  <h1>
+    Dashboard <span>Access</span>
+  </h1>
+
+  <!-- BUTTON SECTION -->
+  <div class="admin-buttons">
+
+    <button class="btn primary" onclick="loadDatabase()">
+  📊 Database Access
+</button>
+
+    <button class="btn primary" onclick="openCustomize()">
+  📝 Customize Questions
+</button>
+
+<button class="btn primary" onclick="setTimer1()">
+ ⏱ Timer 1
+</button>
+
+    <button class="btn primary">
+      ⏱ Timer 2
+    </button>
+
+  </div>
+
+</div>
+
+<script src="admin-dashboard.js"></script>
+
+</body>
+</html>
