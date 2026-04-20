@@ -67,15 +67,25 @@ function showDatabase(data) {
     <div class="data-table">
   `;
 
-  data.forEach(user => {
-    html += `
-      <div class="card">
-        <h3>${user.name}</h3>
-        <pre>${user.code}</pre>
-        <p>Score: ${user.score}</p>
-      </div>
-    `;
-  });
+  data.forEach((user, index) => {
+  html += `
+    <div class="card">
+      <h3>${user.name}</h3>
+      <pre>${user.code}</pre>
+      <p>Score: ${user.score}</p>
+
+      <button class="btn secondary"
+  onclick="deleteData(${index})">
+  Delete Data
+</button>
+
+<button class="btn primary"
+  onclick="deleteParticipant(${index}, '${user.name}')">
+  Delete Full
+</button>
+    </div>
+  `;
+});
 
   html += `</div>`;
 
@@ -103,6 +113,61 @@ function setTimer1() {
   .then(res => res.json())
   .then(() => {
     alert("Timer updated globally ✅");
+  });
+
+}
+function deleteParticipant(index, name) {
+
+  if (!confirm("Delete full participant (account + data)?")) return;
+
+  fetch("/delete-participant", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ index, name })
+  })
+  .then(() => {
+    loadDatabase();
+  });
+
+}
+
+
+function deleteData(index) {
+
+  if (!confirm("Delete only submission data?")) return;
+
+  fetch("/delete-data-only", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ index })
+  })
+  .then(() => {
+    loadDatabase();
+  });
+
+}
+function setTimer2() {
+
+  let time = prompt("Enter Competition Timer (in seconds):");
+
+  if (!time || isNaN(time) || time <= 0) {
+    alert("Invalid input");
+    return;
+  }
+
+  fetch("/set-timer2", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ time: parseInt(time) })
+  })
+  .then(() => {
+    alert("Competition timer updated ✅");
   });
 
 }

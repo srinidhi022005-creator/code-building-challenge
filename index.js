@@ -70,6 +70,19 @@ app.get("/get-timer", (req, res) => {
   }
 
 });
+// 🔥 TIMER 2 (COMPETITION TIMER)
+let timer2 = 60; // default seconds
+
+// SET TIMER 2 (ADMIN)
+app.post("/set-timer2", (req, res) => {
+  timer2 = req.body.time;
+  res.json({ message: "Timer2 updated" });
+});
+
+// GET TIMER 2 (PARTICIPANT)
+app.get("/get-timer2", (req, res) => {
+  res.json({ time: timer2 });
+});
 
 // =========================
 // 🔥 AUTH APIs
@@ -168,4 +181,74 @@ app.get("/participants", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+app.post("/delete-participant", (req, res) => {
+
+  const { index, name } = req.body;
+
+  let participants = [];
+
+  try {
+    participants = JSON.parse(fs.readFileSync("participants.json"));
+  } catch {
+    participants = [];
+  }
+
+  // ✅ Remove from participants.json
+  participants.splice(index, 1);
+
+  fs.writeFileSync(
+    "participants.json",
+    JSON.stringify(participants, null, 2)
+  );
+
+  // ✅ VERY IMPORTANT: Remove from USERS TABLE
+  const query = "DELETE FROM users WHERE name = ?";
+
+  db.run(query, [name], function (err) {
+
+    if (err) {
+      console.error(err);
+      return res.json({ message: "Error deleting user" });
+    }
+
+    res.json({ message: "User fully deleted" });
+
+  });
+
+});
+
+
+/* 🔥 CLEAR ALL DATA */
+app.post("/clear-all", (req, res) => {
+
+  fs.writeFileSync("participants.json", "[]");
+
+  res.json({ message: "All data cleared" });
+
+});
+/* 🟡 DELETE ONLY SUBMISSION DATA */
+app.post("/delete-data-only", (req, res) => {
+
+  const { index } = req.body;
+
+  let participants = [];
+
+  try {
+    participants = JSON.parse(fs.readFileSync("participants.json"));
+  } catch {
+    participants = [];
+  }
+
+  // remove only submission
+  participants.splice(index, 1);
+
+  fs.writeFileSync(
+    "participants.json",
+    JSON.stringify(participants, null, 2)
+  );
+
+  res.json({ message: "Submission data deleted" });
+
 });

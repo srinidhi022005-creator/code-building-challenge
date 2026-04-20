@@ -75,18 +75,17 @@ function loadQuestions() {
       lineBox.style.border = "1px solid #7c3aed";
       lineBox.style.borderRadius = "10px";
 
-      /* LINE LABEL */
+      /* 🔥 LINE LABEL (UPDATED STYLE) */
       const lineLabel = document.createElement("p");
       lineLabel.innerText = `Line ${li + 1}`;
       lineLabel.style.color = "#a78bfa";
-
-      const lineInput = document.createElement("input");
-      lineInput.placeholder = "Enter line label (optional)";
-      lineInput.style.width = "100%";
-      lineInput.style.marginBottom = "10px";
+      lineLabel.style.fontSize = "22px";       // ✅ BIGGER
+      lineLabel.style.fontWeight = "bold";
+      lineLabel.style.marginBottom = "10px";
 
       lineBox.appendChild(lineLabel);
-      lineBox.appendChild(lineInput);
+
+      /* ❌ REMOVED WHITE INPUT BOX COMPLETELY */
 
       /* OPTIONS */
       line.forEach((opt, oi) => {

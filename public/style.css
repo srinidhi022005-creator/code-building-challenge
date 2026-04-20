@@ -133,7 +133,7 @@ h1 span {
 
 /* OPTIONS */
 .options {
-  display: grid;
+  display: flex;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 20px;
@@ -358,4 +358,23 @@ textarea:focus {
 /* Admin buttons spacing */
 .card button {
   margin-top: 10px;
+}
+.comp-timer-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: #fff;
+
+  padding: 12px 20px;
+  border-radius: 12px;
+
+  font-size: 20px;
+  font-weight: bold;
+
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
+  border: 1px solid #7c3aed;
+
+  z-index: 999;
 }

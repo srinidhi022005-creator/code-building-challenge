@@ -23,7 +23,6 @@ function startTimer() {
         if (timeLeft < 0) {
           clearInterval(interval);
 
-          timerDisplay.innerText = "Time Over";
           startBtn.classList.remove("hidden");
         }
 

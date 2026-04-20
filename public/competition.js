@@ -43,6 +43,10 @@ let allPrograms = [];
 let userAnswers = [];
 let username = localStorage.getItem("username") || "player";
 
+/* 🔥 TIMER VARIABLES */
+let compTimeLeft = 0;
+let timerInterval;
+
 /* ========================= */
 /* LOAD QUESTION */
 /* ========================= */
@@ -62,43 +66,38 @@ function loadQuestion() {
 
   container.innerHTML = `<h2 class="question">${q.question}</h2>`;
 
-  /* 🔥 LOOP THROUGH LINES */
+  q.lines.forEach((lineOptions, index) => {
 
-q.lines.forEach((lineOptions, index) => {
+    const wrapper = document.createElement("div");
+    wrapper.style.marginTop = "20px";
 
-  const wrapper = document.createElement("div");
-  wrapper.style.marginTop = "20px";
+    const optionsDiv = document.createElement("div");
+    optionsDiv.classList.add("options");
 
-  // ✅ ONLY OPTIONS (NO LINE NUMBER)
-  const optionsDiv = document.createElement("div");
-  optionsDiv.classList.add("options");
+    lineOptions.forEach(option => {
 
-  lineOptions.forEach(option => {
+      const btn = document.createElement("button");
+      btn.innerText = option.trim();
 
-    const btn = document.createElement("button");
-    btn.innerText = option.trim();
+      if (selectedLines[index] === option) {
+        btn.style.background = "#7c3aed";
+      }
 
-    if (selectedLines[index] === option) {
-      btn.style.background = "#7c3aed";
-    }
+      btn.onclick = () => {
+        selectedLines[index] = option;
 
-    btn.onclick = () => {
-      selectedLines[index] = option;
+        optionsDiv.querySelectorAll("button")
+          .forEach(b => b.style.background = "");
 
-      optionsDiv.querySelectorAll("button")
-        .forEach(b => b.style.background = "");
+        btn.style.background = "#7c3aed";
+      };
 
-      btn.style.background = "#7c3aed";
-    };
+      optionsDiv.appendChild(btn);
+    });
 
-    optionsDiv.appendChild(btn);
+    wrapper.appendChild(optionsDiv);
+    container.appendChild(wrapper);
   });
-
-  wrapper.appendChild(optionsDiv);
-  container.appendChild(wrapper);
-});
-
-  /* ✅ SUBMIT BUTTON */
 
   const submitBtn = document.createElement("button");
   submitBtn.className = "btn primary";
@@ -171,16 +170,12 @@ function showFinalPage() {
 }
 
 /* ========================= */
-/* REVIEW */
-/* ========================= */
 
 function reviewAnswers() {
   currentQuestion = 0;
   loadQuestion();
 }
 
-/* ========================= */
-/* FINAL SUBMIT */
 /* ========================= */
 
 async function submitAllResults() {
@@ -207,8 +202,6 @@ async function submitAllResults() {
 }
 
 /* ========================= */
-/* SUCCESS PAGE */
-/* ========================= */
 
 function showSuccessPage() {
 
@@ -231,15 +224,130 @@ function showSuccessPage() {
 }
 
 /* ========================= */
-/* LOGOUT */
-/* ========================= */
 
 function logout() {
   window.location.href = "index.html";
 }
 
 /* ========================= */
-/* INIT */
+/* TIMER START */
 /* ========================= */
 
-window.onload = loadQuestion;
+window.onload = async function () {
+
+  loadQuestion();
+
+  try {
+    const res = await fetch("/get-timer2");
+    const data = await res.json();
+
+    compTimeLeft = data.time;
+
+  } catch {
+    compTimeLeft = 60;
+  }
+
+  startCompetitionTimer();
+};
+
+/* ========================= */
+
+function startCompetitionTimer() {
+
+  const timerDisplay = document.getElementById("comp-timer");
+
+  timerInterval = setInterval(() => {
+
+    let minutes = Math.floor(compTimeLeft / 60);
+    let seconds = compTimeLeft % 60;
+
+    timerDisplay.innerText =
+      `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+    compTimeLeft--;
+
+    if (compTimeLeft < 0) {
+      clearInterval(timerInterval);
+      autoSubmit();
+    }
+
+  }, 1000);
+}
+
+/* ========================= */
+/* AUTO SUBMIT */
+/* ========================= */
+
+function autoSubmit() {
+
+  let attemptedPrograms = [];
+
+  userAnswers.forEach((ans, i) => {
+
+    if (ans && Object.keys(ans).length > 0) {
+
+      let program = "";
+
+      questions[i].lines.forEach((_, index) => {
+        if (ans[index]) {
+          program += ans[index];
+        }
+      });
+
+      attemptedPrograms.push(program);
+    }
+
+  });
+
+  fetch("/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: username,
+      code: attemptedPrograms.join("\n\n"),
+      score: 0
+    })
+  });
+
+  showTimeOverPopup();
+}
+
+/* ========================= */
+
+function showTimeOverPopup() {
+
+  const container = document.querySelector(".question-container");
+
+  container.innerHTML = `
+    <div class="final-box">
+      <h1 class="success-title">⏰ Time Over</h1>
+
+      <p class="success-text">
+        Your results submitted successfully
+      </p>
+
+      <button class="btn primary" onclick="logout()">
+        Sign Out
+      </button>
+    </div>
+  `;
+}
+
+/* ========================= */
+/* TAB SWITCH DETECTION */
+/* ========================= */
+
+document.addEventListener("visibilitychange", () => {
+
+  if (document.hidden) {
+
+    clearInterval(timerInterval);
+
+    // ✅ use same auto submit
+    autoSubmit();
+
+  }
+
+});

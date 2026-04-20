@@ -1,17 +1,7 @@
 [
   {
     "name": "ABC",
-    "code": "for i in range(3):\n    print(i)\n",
-    "score": 0
-  },
-  {
-    "name": "ABC",
-    "code": "for i in range(3):\n    print(i)\n",
-    "score": 0
-  },
-  {
-    "name": "ABC",
-    "code": "for i in range(3):\n    print(i)\n",
+    "code": "",
     "score": 0
   }
 ]
