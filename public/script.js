@@ -85,12 +85,17 @@ function showPopup(type, title, message) {
 
   popup.classList.remove("hidden");
 
-  // 🔥 ensure button closes popup
   btn.onclick = closePopup;
 }
 
 function closePopup() {
+
   document.getElementById("popup").classList.add("hidden");
+
+  // logout after clicking OK
+  localStorage.removeItem("username");
+  window.location.href = "index.html";
+
 }
 
 /* ========================= */
@@ -113,12 +118,25 @@ function showLogin() {
 
 function signupUser() {
 
-  const name = document.getElementById("signupName").value.trim();
-  const password = document.getElementById("signupPassword").value;
+  let name1 = document.getElementById("signupName1").value.trim();
+  let name2 = document.getElementById("signupName2").value.trim();
+  let password = document.getElementById("signupPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
 
-  if (!name || !password || !confirmPassword) {
-    showPopup("error", "Missing Fields", "Please fill all the fields.");
+  if (!name1 || !name2) {
+    showPopup("error", "Missing Fields", "Enter both participant names");
+    return;
+  }
+
+  const passwordPattern =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/;
+
+  if (!passwordPattern.test(password)) {
+    showPopup(
+      "error",
+      "Invalid Password",
+      "Password must be at least 8 characters and include alphabets, numbers & special character"
+    );
     return;
   }
 
@@ -132,14 +150,19 @@ function signupUser() {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ name, password })
+    body: JSON.stringify({
+      name1: name1,
+      name2: name2,
+      password: password
+    })
   })
   .then(response => response.json())
   .then(data => {
 
     showPopup("success", "Account Created", data.message);
 
-    document.getElementById("signupName").value = "";
+    document.getElementById("signupName1").value = "";
+    document.getElementById("signupName2").value = "";
     document.getElementById("signupPassword").value = "";
     document.getElementById("confirmPassword").value = "";
 
@@ -155,39 +178,39 @@ function signupUser() {
 
 function loginUser() {
 
-  const name = document.getElementById("loginName").value.trim();
+  const name1 = document.getElementById("loginName1").value.trim();
+  const name2 = document.getElementById("loginName2").value.trim();
   const password = document.getElementById("loginPassword").value;
 
-  if (!name || !password) {
-    showPopup("error", "Missing Fields", "Please enter username and password.");
+  if (!name1 || !name2 || !password) {
+    showPopup("error", "Missing Fields", "Enter both names and password.");
     return;
   }
+
+  // ✅ same format as signup
+  const combinedName = name1 + " & " + name2;
 
   fetch("/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ name, password })
+    body: JSON.stringify({ name: combinedName, password })
   })
   .then(response => response.json())
   .then(data => {
 
     if (data.message === "Login successful") {
 
-      // ✅ STEP 7 (IMPORTANT)
-      localStorage.setItem("username", name);
-
       showPopup("success", "Login Successful", "Welcome to the competition!");
-
-     window.location.href = "instructions.html";
+      afterLoginSuccess(combinedName);
 
     } else {
 
       showPopup(
         "error",
-        "Invalid Username or Password",
-        "The name or password you entered is incorrect. Please try again."
+        "Invalid Credentials",
+        "Names or password are incorrect."
       );
 
     }
@@ -198,29 +221,52 @@ function loginUser() {
   });
 
 }
+
 /* ========================= */
-/* 🔐 ADMIN SHORTCUT FINAL */
+/* 🔐 ADMIN SHORTCUT */
 /* ========================= */
 
 window.onload = function () {
 
   document.addEventListener("keydown", function(e) {
 
-    console.log("Key:", e.key); // debug
-
-    // Ctrl + Shift + A
     if (
       e.ctrlKey &&
       e.shiftKey &&
       (e.key === "A" || e.key === "a")
     ) {
       e.preventDefault();
-
-      console.log("✅ Admin shortcut triggered");
-
       window.location.href = "/admin.html";
     }
 
   });
 
 };
+
+/* ========================= */
+/* CHECK PARTICIPANT */
+/* ========================= */
+
+async function afterLoginSuccess(username) {
+
+  const res = await fetch(`/check-participant/${username}`);
+  const data = await res.json();
+
+  if (data.exists) {
+
+    showPopup(
+      "error",
+      "Access Denied",
+      "You already completed the competition"
+    );
+
+    return;
+  }
+
+  // ✅ STEP 1 FIX (RESET SUBMISSION FLAG)
+  localStorage.removeItem(`submitted_${username}`);
+
+  localStorage.setItem("teamName", username);
+  console.log("Saved teamName:", localStorage.getItem("teamName"));
+  window.location.href = "instructions.html";
+}

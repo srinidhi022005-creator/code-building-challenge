@@ -22,7 +22,7 @@ const participantsFile = path.join(__dirname, "participants.json");
 const timerFile = path.join(__dirname, "timer.json");
 
 // =========================
-// 🔥 INIT FILES (IF NOT EXIST)
+// 🔥 INIT FILES
 // =========================
 
 if (!fs.existsSync(participantsFile)) {
@@ -45,9 +45,7 @@ app.get("/", (req, res) => {
 // 🔥 TIMER APIs
 // =========================
 
-// SET TIMER (ADMIN)
 app.post("/set-timer", (req, res) => {
-
   const newTime = req.body.time;
 
   fs.writeFileSync(
@@ -56,30 +54,25 @@ app.post("/set-timer", (req, res) => {
   );
 
   res.json({ message: "Timer updated successfully" });
-
 });
 
-// GET TIMER (PARTICIPANT)
 app.get("/get-timer", (req, res) => {
-
   try {
     const data = JSON.parse(fs.readFileSync(timerFile));
     res.json({ time: data.time });
   } catch {
     res.json({ time: 10 });
   }
-
 });
-// 🔥 TIMER 2 (COMPETITION TIMER)
-let timer2 = 60; // default seconds
 
-// SET TIMER 2 (ADMIN)
+// TIMER 2
+let timer2 = 60;
+
 app.post("/set-timer2", (req, res) => {
   timer2 = req.body.time;
   res.json({ message: "Timer2 updated" });
 });
 
-// GET TIMER 2 (PARTICIPANT)
 app.get("/get-timer2", (req, res) => {
   res.json({ time: timer2 });
 });
@@ -88,18 +81,20 @@ app.get("/get-timer2", (req, res) => {
 // 🔥 AUTH APIs
 // =========================
 
-// SIGNUP
+// SIGNUP ✅ FIXED
 app.post("/signup", (req, res) => {
 
-  const { name, password } = req.body;
+  const { name1, name2, password } = req.body;
 
-  if (!name || !password) {
+  if (!name1 || !name2 || !password) {
     return res.json({ message: "Missing data" });
   }
 
-  const query = "INSERT INTO users (name, password) VALUES (?, ?)";
+  const combinedName = name1 + " & " + name2;
 
-  db.run(query, [name, password], function (err) {
+  const insertQuery = "INSERT INTO users (name, password) VALUES (?, ?)";
+
+  db.run(insertQuery, [combinedName, password], function (err) {
 
     if (err) {
       return res.json({ message: "User already exists" });
@@ -116,9 +111,9 @@ app.post("/login", (req, res) => {
 
   const { name, password } = req.body;
 
-  const query = "SELECT * FROM users WHERE name = ? AND password = ?";
+  const selectQuery = "SELECT * FROM users WHERE name = ? AND password = ?";
 
-  db.get(query, [name, password], (err, row) => {
+  db.get(selectQuery, [name, password], (err, row) => {
 
     if (err) {
       return res.json({ message: "Error occurred" });
@@ -149,7 +144,20 @@ app.post("/submit", (req, res) => {
     participants = [];
   }
 
-  participants.push(req.body);
+  // ✅ CHECK duplicate using single name
+  if (
+    participants.find(
+      p => p.name.toLowerCase().trim() === req.body.name.toLowerCase().trim()
+    )
+  ) {
+    return res.json({ message: "Already submitted" });
+  }
+
+  // ✅ SAVE properly
+  participants.push({
+  name: req.body.name || "UNKNOWN",
+  code: req.body.code || ""
+});
 
   fs.writeFileSync(
     participantsFile,
@@ -157,11 +165,11 @@ app.post("/submit", (req, res) => {
   );
 
   res.json({ message: "Submission saved successfully" });
+  console.log("Received from frontend:", req.body);
 
 });
-
 // =========================
-// 🔥 GET PARTICIPANTS (ADMIN)
+// GET PARTICIPANTS
 // =========================
 
 app.get("/participants", (req, res) => {
@@ -176,12 +184,8 @@ app.get("/participants", (req, res) => {
 });
 
 // =========================
-// 🚀 START SERVER
+// DELETE PARTICIPANT
 // =========================
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
 
 app.post("/delete-participant", (req, res) => {
 
@@ -190,23 +194,21 @@ app.post("/delete-participant", (req, res) => {
   let participants = [];
 
   try {
-    participants = JSON.parse(fs.readFileSync("participants.json"));
+    participants = JSON.parse(fs.readFileSync(participantsFile));
   } catch {
     participants = [];
   }
 
-  // ✅ Remove from participants.json
   participants.splice(index, 1);
 
   fs.writeFileSync(
-    "participants.json",
+    participantsFile,
     JSON.stringify(participants, null, 2)
   );
 
-  // ✅ VERY IMPORTANT: Remove from USERS TABLE
-  const query = "DELETE FROM users WHERE name = ?";
+  const deleteQuery = "DELETE FROM users WHERE name = ?";
 
-  db.run(query, [name], function (err) {
+  db.run(deleteQuery, [name], function (err) {
 
     if (err) {
       console.error(err);
@@ -219,16 +221,16 @@ app.post("/delete-participant", (req, res) => {
 
 });
 
+// =========================
+// CLEAR ALL
+// =========================
 
-/* 🔥 CLEAR ALL DATA */
 app.post("/clear-all", (req, res) => {
-
-  fs.writeFileSync("participants.json", "[]");
-
+  fs.writeFileSync(participantsFile, "[]");
   res.json({ message: "All data cleared" });
-
 });
-/* 🟡 DELETE ONLY SUBMISSION DATA */
+
+// DELETE ONLY DATA
 app.post("/delete-data-only", (req, res) => {
 
   const { index } = req.body;
@@ -236,19 +238,50 @@ app.post("/delete-data-only", (req, res) => {
   let participants = [];
 
   try {
-    participants = JSON.parse(fs.readFileSync("participants.json"));
+    participants = JSON.parse(fs.readFileSync(participantsFile));
   } catch {
     participants = [];
   }
 
-  // remove only submission
   participants.splice(index, 1);
 
   fs.writeFileSync(
-    "participants.json",
+    participantsFile,
     JSON.stringify(participants, null, 2)
   );
 
   res.json({ message: "Submission data deleted" });
 
+});
+
+// =========================
+// CHECK PARTICIPANT ✅ FIXED
+// =========================
+
+app.get("/check-participant/:name", (req, res) => {
+
+  const name = req.params.name.toLowerCase().trim();
+
+  let participants = [];
+
+  try {
+    participants = JSON.parse(fs.readFileSync(participantsFile));
+  } catch {
+    participants = [];
+  }
+
+  const exists = participants.some(
+    p => p.name.toLowerCase().trim() === name
+  );
+
+  res.json({ exists });
+
+});
+
+// =========================
+// START SERVER
+// =========================
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

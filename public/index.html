@@ -53,8 +53,13 @@
 
     <!-- Signup Form -->
     <div id="signupForm" class="form hidden">
+      <p style="font-size: 12px; color: #a78bfa; margin-top: 5px;">
+  • Password should be at least 8 characters <br>
+  • Must contain alphabets, numbers & 1 special character
+      </p>
 
-      <input type="text" id="signupName" placeholder="Full Name">
+      <input type="text" id="signupName1" placeholder="Participant 1">
+      <input type="text" id="signupName2" placeholder="Participant 2">
 
       <input type="password" id="signupPassword" placeholder="Create Password">
 
@@ -69,15 +74,16 @@
     <!-- Login Form -->
     <div id="loginForm" class="form hidden">
 
-      <input type="text" id="loginName" placeholder="Username">
+  <input type="text" id="loginName1" placeholder="Participant 1">
+  <input type="text" id="loginName2" placeholder="Participant 2">
 
-      <input type="password" id="loginPassword" placeholder="Password">
+  <input type="password" id="loginPassword" placeholder="Password">
 
-      <button class="btn primary" onclick="loginUser()">
-        Login
-      </button>
+  <button class="btn primary" onclick="loginUser(); return false;">
+    Login
+  </button>
 
-    </div>
+</div>
 
   </div>
 

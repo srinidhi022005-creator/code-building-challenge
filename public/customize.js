@@ -47,11 +47,17 @@ function loadQuestions() {
 
     const card = document.createElement("div");
     card.className = "card";
+    card.style.width = "80%";
+    card.style.margin = "20px auto";
+    card.style.padding = "20px";
+    card.style.display = "block";
 
     /* 🔥 QUESTION LABEL */
     const qLabel = document.createElement("p");
     qLabel.innerText = `Question ${qi + 1}`;
     qLabel.style.fontWeight = "bold";
+    qLabel.style.color = "#a855f7";
+    qLabel.style.marginBottom = "10px";
 
     const qInput = document.createElement("textarea");
     qInput.value = q.question;
@@ -70,10 +76,11 @@ function loadQuestions() {
     q.lines.forEach((line, li) => {
 
       const lineBox = document.createElement("div");
-      lineBox.style.marginTop = "15px";
-      lineBox.style.padding = "10px";
-      lineBox.style.border = "1px solid #7c3aed";
-      lineBox.style.borderRadius = "10px";
+lineBox.style.marginTop = "15px";
+lineBox.style.padding = "15px";
+lineBox.style.border = "1px solid #7c3aed";
+lineBox.style.borderRadius = "10px";
+lineBox.style.background = "rgba(255,255,255,0.03)";
 
       /* 🔥 LINE LABEL (UPDATED STYLE) */
       const lineLabel = document.createElement("p");
@@ -85,8 +92,6 @@ function loadQuestions() {
 
       lineBox.appendChild(lineLabel);
 
-      /* ❌ REMOVED WHITE INPUT BOX COMPLETELY */
-
       /* OPTIONS */
       line.forEach((opt, oi) => {
 
@@ -96,6 +101,9 @@ function loadQuestions() {
 
         const optInput = document.createElement("textarea");
         optInput.value = opt.trim();
+        optInput.style.display = "block";
+        optInput.style.width = "90%";
+        optInput.style.marginBottom = "8px";
 
         optInput.oninput = () => {
           questions[qi].lines[li][oi] = optInput.value + "\n";
@@ -163,7 +171,11 @@ function loadQuestions() {
     };
 
     card.appendChild(deleteBtn);
+const divider = document.createElement("hr");
+divider.style.margin = "30px 0";
+divider.style.border = "1px solid #7c3aed";
 
+card.appendChild(divider);
     container.appendChild(card);
   });
 }

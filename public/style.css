@@ -133,7 +133,7 @@ h1 span {
 
 /* OPTIONS */
 .options {
-  display: flex;
+  display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 20px;
@@ -377,4 +377,31 @@ textarea:focus {
   border: 1px solid #7c3aed;
 
   z-index: 999;
+}
+#timer-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+
+  background: linear-gradient(135deg, #320480, #7c3aed);
+  color: white;
+
+  padding: 12px 20px;
+  border-radius: 12px;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
+
+  z-index: 1000;
+}
+.card {
+  margin-bottom: 30px;
+  width: 80%;
+}
+
+.card h2 {
+  border-bottom: 2px solid #7c3aed;
+  padding-bottom: 10px;
 }

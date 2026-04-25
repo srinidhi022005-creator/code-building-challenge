@@ -1,6 +1,8 @@
 /* ========================= */
 /* ✅ SAFE QUESTION LOADING */
 /* ========================= */
+let isSubmitted = false;
+console.log("TEAM NAME FROM STORAGE:", localStorage.getItem("teamName"));
 
 const defaultQuestions = [
   {
@@ -27,7 +29,6 @@ let stored = localStorage.getItem("questions");
 let questions;
 try {
   questions = stored ? JSON.parse(stored) : defaultQuestions;
-
   if (!questions || questions.length === 0) {
     questions = defaultQuestions;
   }
@@ -41,7 +42,8 @@ let currentQuestion = 0;
 let selectedLines = {};
 let allPrograms = [];
 let userAnswers = [];
-let username = localStorage.getItem("username") || "player";
+
+let username = localStorage.getItem("teamName");
 
 /* 🔥 TIMER VARIABLES */
 let compTimeLeft = 0;
@@ -149,12 +151,10 @@ function showFinalPage() {
 
   container.innerHTML = `
     <div class="final-box">
-
       <h2 class="success-title">All Problems Completed</h2>
       <p class="success-text">Check your answers before submitting</p>
 
       <div class="review-buttons">
-
         <button class="btn primary" onclick="reviewAnswers()">
           Check Once Again
         </button>
@@ -162,14 +162,10 @@ function showFinalPage() {
         <button class="btn primary" onclick="submitAllResults()">
           Submit Results
         </button>
-
       </div>
-
     </div>
   `;
 }
-
-/* ========================= */
 
 function reviewAnswers() {
   currentQuestion = 0;
@@ -177,21 +173,34 @@ function reviewAnswers() {
 }
 
 /* ========================= */
+/* ✅ FINAL SUBMIT */
+/* ========================= */
 
 async function submitAllResults() {
 
-  try {
+  if (isSubmitted) return;
+  isSubmitted = true;
 
+  localStorage.setItem(`submitted_${username}`, "true");
+
+  try {
+    console.log("Submitting:", username);
+    console.log("Sending to server:", {
+  name: username,
+  code: allPrograms.map((prog, i) => ({
+  question: questions[i].question,
+  answer: prog
+}))
+});
     await fetch("/submit", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name: username,
-        code: allPrograms.join("\n\n"),
-        score: 0
-      })
+  name: username,
+  code: allPrograms.join("\n\n")
+})
     });
 
     showSuccessPage();
@@ -230,27 +239,29 @@ function logout() {
 }
 
 /* ========================= */
-/* TIMER START */
+/* TIMER */
 /* ========================= */
 
 window.onload = async function () {
+
+  // only block if user REALLY submitted in this session
+if (localStorage.getItem(`submitted_${username}`) === "true" && isSubmitted) {
+  showAlreadySubmittedPopup();
+  return;
+}
 
   loadQuestion();
 
   try {
     const res = await fetch("/get-timer2");
     const data = await res.json();
-
     compTimeLeft = data.time;
-
   } catch {
     compTimeLeft = 60;
   }
 
   startCompetitionTimer();
 };
-
-/* ========================= */
 
 function startCompetitionTimer() {
 
@@ -280,35 +291,24 @@ function startCompetitionTimer() {
 
 function autoSubmit() {
 
-  let attemptedPrograms = [];
+  if (isSubmitted) return;
+  isSubmitted = true;
 
-  userAnswers.forEach((ans, i) => {
-
-    if (ans && Object.keys(ans).length > 0) {
-
-      let program = "";
-
-      questions[i].lines.forEach((_, index) => {
-        if (ans[index]) {
-          program += ans[index];
-        }
-      });
-
-      attemptedPrograms.push(program);
-    }
-
-  });
-
+  
+console.log("Submitting:", username);
+console.log("Sending to server:", {
+  name: username,
+  code: allPrograms.join("\n\n")
+});
   fetch("/submit", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      name: username,
-      code: attemptedPrograms.join("\n\n"),
-      score: 0
-    })
+  name: username,
+  code: allPrograms.join("\n\n")
+})
   });
 
   showTimeOverPopup();
@@ -323,10 +323,7 @@ function showTimeOverPopup() {
   container.innerHTML = `
     <div class="final-box">
       <h1 class="success-title">⏰ Time Over</h1>
-
-      <p class="success-text">
-        Your results submitted successfully
-      </p>
+      <p class="success-text">Your results submitted successfully</p>
 
       <button class="btn primary" onclick="logout()">
         Sign Out
@@ -336,18 +333,35 @@ function showTimeOverPopup() {
 }
 
 /* ========================= */
-/* TAB SWITCH DETECTION */
+/* TAB SWITCH */
 /* ========================= */
 
 document.addEventListener("visibilitychange", () => {
 
   if (document.hidden) {
-
     clearInterval(timerInterval);
-
-    // ✅ use same auto submit
     autoSubmit();
-
   }
 
 });
+
+/* ========================= */
+
+function showAlreadySubmittedPopup() {
+
+  const container = document.querySelector(".question-container");
+
+  container.innerHTML = `
+    <div class="final-box">
+      <h1 class="success-title">⚠️ Already Submitted</h1>
+
+      <p class="success-text">
+        Your answers are already submitted
+      </p>
+
+      <button class="btn primary" onclick="logout()">
+        Sign Out
+      </button>
+    </div>
+  `;
+}

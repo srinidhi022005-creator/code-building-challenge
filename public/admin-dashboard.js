@@ -39,9 +39,14 @@ function draw() {
 }
 
 setInterval(draw, 5);
+
+/* ========================= */
+/* LOAD DATABASE */
+/* ========================= */
+
 function loadDatabase() {
 
-  fetch("/participants") // ✅ FIXED
+  fetch("/participants")
     .then(res => res.json())
     .then(data => {
       showDatabase(data);
@@ -51,8 +56,12 @@ function loadDatabase() {
       alert("Error loading data");
     });
 
-
 }
+
+/* ========================= */
+/* SHOW DATABASE */
+/* ========================= */
+
 function showDatabase(data) {
 
   const container = document.querySelector(".container");
@@ -68,32 +77,53 @@ function showDatabase(data) {
   `;
 
   data.forEach((user, index) => {
-  html += `
-    <div class="card">
-      <h3>${user.name}</h3>
-      <pre>${user.code}</pre>
-      <p>Score: ${user.score}</p>
 
-      <button class="btn secondary"
-  onclick="deleteData(${index})">
-  Delete Data
-</button>
+    // ✅ STEP 3 FIX: Properly display questions + answers
+    let formattedCode = "";
 
-<button class="btn primary"
-  onclick="deleteParticipant(${index}, '${user.name}')">
-  Delete Full
-</button>
-    </div>
-  `;
-});
+    if (Array.isArray(user.code)) {
+
+      user.code.forEach((item, i) => {
+        formattedCode += `Q${i + 1}: ${item.question}\n`;
+        formattedCode += `Answer:\n${item.answer}\n\n`;
+      });
+
+    } else {
+      // fallback for old data
+      formattedCode = user.code || "No data";
+    }
+
+    html += `
+      <div class="card">
+        <h3>${user.name}</h3>
+        <pre>${formattedCode}</pre>
+
+        <button class="btn secondary"
+          onclick="deleteData(${index})">
+          Delete Data
+        </button>
+
+        <button class="btn primary"
+          onclick="deleteParticipant(${index}, '${user.name}')">
+          Delete Full
+        </button>
+      </div>
+    `;
+  });
 
   html += `</div>`;
 
   container.innerHTML = html;
 }
+
+/* ========================= */
+
 function openCustomize() {
   window.location.href = "customize.html";
 }
+
+/* ========================= */
+
 function setTimer1() {
 
   let time = prompt("Enter Timer (in seconds):");
@@ -116,6 +146,9 @@ function setTimer1() {
   });
 
 }
+
+/* ========================= */
+
 function deleteParticipant(index, name) {
 
   if (!confirm("Delete full participant (account + data)?")) return;
@@ -133,6 +166,7 @@ function deleteParticipant(index, name) {
 
 }
 
+/* ========================= */
 
 function deleteData(index) {
 
@@ -150,6 +184,9 @@ function deleteData(index) {
   });
 
 }
+
+/* ========================= */
+
 function setTimer2() {
 
   let time = prompt("Enter Competition Timer (in seconds):");
