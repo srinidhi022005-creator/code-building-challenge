@@ -24,17 +24,7 @@ const defaultQuestions = [
   }
 ];
 
-let stored = localStorage.getItem("questions");
-
-let questions;
-try {
-  questions = stored ? JSON.parse(stored) : defaultQuestions;
-  if (!questions || questions.length === 0) {
-    questions = defaultQuestions;
-  }
-} catch {
-  questions = defaultQuestions;
-}
+let questions = [];
 
 /* ========================= */
 
@@ -199,7 +189,10 @@ async function submitAllResults() {
       },
       body: JSON.stringify({
   name: username,
-  code: allPrograms.join("\n\n")
+  answers: allPrograms.map((prog, i) => ({
+    question: questions[i].question,
+    answer: prog
+  }))
 })
     });
 
@@ -244,22 +237,65 @@ function logout() {
 
 window.onload = async function () {
 
-  // only block if user REALLY submitted in this session
-if (localStorage.getItem(`submitted_${username}`) === "true" && isSubmitted) {
-  showAlreadySubmittedPopup();
+  // 🔥 STEP 4: SERVER CHECK (ANTI-REFRESH / ANTI-CHEAT)
+try {
+  const res = await fetch(`/check-participant/${username}`);
+  const data = await res.json();
+
+  if (data.exists) {
+    window.location.href = "index.html"; // redirect to login
+    return;
+  }
+} catch (err) {
+  console.error("Check participant error:", err);
+}
+  // block only if already submitted
+  if (localStorage.getItem(`submitted_${username}`) === "true") {
+  window.location.href = "index.html"; // 🔥 redirect to login page
   return;
 }
 
-  loadQuestion();
+  /* ========================= */
+  /* 🔥 FETCH QUESTIONS */
+  /* ========================= */
+
+  try {
+    const res = await fetch("/questions");
+    questions = await res.json();
+
+    console.log("Questions from DB:", questions); // ✅ DEBUG
+
+    if (!questions || questions.length === 0) {
+      questions = defaultQuestions;
+    }
+
+  } catch (err) {
+    console.error("Question fetch error:", err);
+    questions = defaultQuestions;
+  }
+
+  /* ========================= */
+  /* 🔥 FETCH TIMER FIRST */
+  /* ========================= */
 
   try {
     const res = await fetch("/get-timer2");
     const data = await res.json();
-    compTimeLeft = data.time;
-  } catch {
+
+    console.log("Timer2 from server:", data); // ✅ DEBUG
+
+    compTimeLeft = data.time || 60;
+
+  } catch (err) {
+    console.error("Timer fetch error:", err);
     compTimeLeft = 60;
   }
 
+  /* ========================= */
+  /* ✅ LOAD UI AFTER DATA */
+  /* ========================= */
+
+  loadQuestion();
   startCompetitionTimer();
 };
 
@@ -293,7 +329,7 @@ function autoSubmit() {
 
   if (isSubmitted) return;
   isSubmitted = true;
-
+localStorage.setItem(`submitted_${username}`, "true");
   
 console.log("Submitting:", username);
 console.log("Sending to server:", {

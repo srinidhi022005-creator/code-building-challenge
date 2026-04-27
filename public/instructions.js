@@ -1,29 +1,37 @@
-let timerDisplay = document.getElementById("timer");
-let startBtn = document.getElementById("startBtn");
+let timerDisplay;
+let startBtn;
+
+window.onload = () => {
+
+  timerDisplay = document.getElementById("timer");
+  startBtn = document.getElementById("startBtn");
+
+  startTimer();
+};
 
 function startTimer() {
 
-  // 🔥 GET TIMER FROM SERVER
   fetch("/get-timer")
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("Server response not OK");
+      return res.json();
+    })
     .then(data => {
 
-      let timeLeft = data.time;
+      console.log("Timer1 fetched:", data); // DEBUG
 
-      // ✅ SHOW INITIAL VALUE IMMEDIATELY
+      let timeLeft = data.time || 10;
+
       updateDisplay(timeLeft);
 
       const interval = setInterval(() => {
 
         timeLeft--;
 
-        // ✅ STOP EXACTLY AT 0 (no negative)
         if (timeLeft < 0) {
           clearInterval(interval);
-
-          timerDisplay.innerText = "00:00";   // final display
-          startBtn.classList.remove("hidden"); // show start button
-
+          timerDisplay.innerText = "00:00";
+          startBtn.classList.remove("hidden");
           return;
         }
 
@@ -32,15 +40,11 @@ function startTimer() {
       }, 1000);
 
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error("Timer error:", err);
       timerDisplay.innerText = "Server error";
     });
-
 }
-
-/* ========================= */
-/* ✅ FORMAT FUNCTION */
-/* ========================= */
 
 function updateDisplay(timeLeft) {
 
@@ -49,15 +53,8 @@ function updateDisplay(timeLeft) {
 
   timerDisplay.innerText =
     `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-
 }
-
-/* ========================= */
 
 function startCompetition() {
   window.location.href = "competition.html";
 }
-
-/* ========================= */
-
-window.onload = startTimer;

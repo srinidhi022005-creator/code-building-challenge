@@ -405,3 +405,75 @@ textarea:focus {
   border-bottom: 2px solid #7c3aed;
   padding-bottom: 10px;
 }
+/* ========================= */
+/* INSTRUCTION BOX */
+/* ========================= */
+
+.instruction-box {
+  width: 60%;
+  margin: 40px auto;
+  padding: 30px;
+
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(124, 58, 237, 0.5);
+  border-radius: 15px;
+
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.3);
+  text-align: justify;
+}
+
+/* Title */
+.instruction-title {
+  text-align: center;
+  color: #a855f7;
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+
+/* List */
+.instruction-list {
+  list-style: none;
+  padding: 0;
+  color: #ddd;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+/* Bullet style */
+.instruction-list li::before {
+  content: "• ";
+  color: #a855f7;
+  font-weight: bold;
+}
+
+/* ========================= */
+/* START BUTTON */
+/* ========================= */
+
+.start-btn {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 25px;
+
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 8px;
+
+  font-size: 16px;
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.start-btn:hover {
+  background: #5b21b6;
+  transform: scale(1.05);
+}
+
+/* Hidden initially */
+.hidden {
+  display: none;
+}

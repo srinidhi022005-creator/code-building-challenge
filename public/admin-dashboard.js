@@ -49,6 +49,7 @@ function loadDatabase() {
   fetch("/participants")
     .then(res => res.json())
     .then(data => {
+      console.log("DB DATA:", data);
       showDatabase(data);
     })
     .catch((err) => {
@@ -76,14 +77,14 @@ function showDatabase(data) {
     <div class="data-table">
   `;
 
-  data.forEach((user, index) => {
+  data.forEach((user)=> {
 
-    // ✅ STEP 3 FIX: Properly display questions + answers
+    // ✅ STEP 4 FIX: Properly display questions + answers
     let formattedCode = "";
 
-    if (Array.isArray(user.code)) {
+    if (Array.isArray(user.answers)) {
 
-      user.code.forEach((item, i) => {
+      user.answers.forEach((item, i) => {
         formattedCode += `Q${i + 1}: ${item.question}\n`;
         formattedCode += `Answer:\n${item.answer}\n\n`;
       });
@@ -98,13 +99,21 @@ function showDatabase(data) {
         <h3>${user.name}</h3>
         <pre>${formattedCode}</pre>
 
+        <p style="color:#aaa;font-size:12px;margin-top:10px;">
+          Submitted at: ${
+            user.submittedAt 
+            ? new Date(user.submittedAt).toLocaleString() 
+            : "N/A"
+          }
+        </p>
+
         <button class="btn secondary"
-          onclick="deleteData(${index})">
+          onclick="deleteData('${user._id}')">
           Delete Data
         </button>
 
         <button class="btn primary"
-          onclick="deleteParticipant(${index}, '${user.name}')">
+          onclick="deleteParticipant('${user._id}', '${user.name}')">
           Delete Full
         </button>
       </div>
@@ -141,15 +150,26 @@ function setTimer1() {
     body: JSON.stringify({ time: parseInt(time) })
   })
   .then(res => res.json())
-  .then(() => {
+  .then(data => {
+
+    console.log("Timer1 response:", data);
+
     alert("Timer updated globally ✅");
+
+    setTimeout(() => {
+      location.reload();   // 🔥 force refresh
+    }, 500);
+
+  })
+  .catch(err => {
+    console.error("Timer1 error:", err);
+    alert("Failed to update timer ❌");
   });
 
 }
-
 /* ========================= */
 
-function deleteParticipant(index, name) {
+function deleteParticipant(id, name) {
 
   if (!confirm("Delete full participant (account + data)?")) return;
 
@@ -158,7 +178,7 @@ function deleteParticipant(index, name) {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ index, name })
+    body: JSON.stringify({ id, name })
   })
   .then(() => {
     loadDatabase();
@@ -168,7 +188,7 @@ function deleteParticipant(index, name) {
 
 /* ========================= */
 
-function deleteData(index) {
+function deleteData(id) {
 
   if (!confirm("Delete only submission data?")) return;
 
@@ -177,7 +197,7 @@ function deleteData(index) {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ index })
+    body: JSON.stringify({ id })
   })
   .then(() => {
     loadDatabase();
@@ -203,8 +223,21 @@ function setTimer2() {
     },
     body: JSON.stringify({ time: parseInt(time) })
   })
-  .then(() => {
+  .then(res => res.json())
+  .then(data => {
+
+    console.log("Timer2 response:", data);
+
     alert("Competition timer updated ✅");
+
+    setTimeout(() => {
+      location.reload();   // 🔥 force refresh
+    }, 500);
+
+  })
+  .catch(err => {
+    console.error("Timer2 error:", err);
+    alert("Failed to update timer ❌");
   });
 
 }

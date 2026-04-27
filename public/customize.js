@@ -20,18 +20,7 @@ const defaultQuestions = [
   }
 ];
 
-/* ✅ SAFE LOAD */
-
-let questions;
-
-const saved = localStorage.getItem("questions");
-
-if (saved) {
-  questions = JSON.parse(saved);
-} else {
-  questions = defaultQuestions;
-  localStorage.setItem("questions", JSON.stringify(defaultQuestions));
-}
+let questions = [];
 
 const container = document.getElementById("questions-area");
 
@@ -200,15 +189,44 @@ function addQuestion() {
 /* SAVE */
 /* ========================= */
 
-function saveQuestions() {
+async function saveQuestions() {
 
-  localStorage.setItem("questions", JSON.stringify(questions));
+  try {
 
-  alert("Questions Saved Successfully ✅");
+    await fetch("/questions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(questions)
+    });
+
+    alert("Questions saved permanently ✅");
+
+  } catch {
+    alert("Error saving questions ❌");
+  }
+
 }
 
 /* ========================= */
 /* INIT */
 /* ========================= */
 
-window.onload = loadQuestions;
+window.onload = async function () {
+  try {
+    const res = await fetch("/questions");
+    const data = await res.json();
+
+    if (data.length === 0) {
+      questions = defaultQuestions;
+    } else {
+      questions = data;
+    }
+
+    loadQuestions();
+
+  } catch {
+    alert("Error loading questions");
+  }
+};

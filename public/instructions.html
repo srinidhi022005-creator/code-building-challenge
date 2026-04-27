@@ -12,31 +12,28 @@
 <div class="container">
 
   <h1>
-    Code Building <br>
-    <span>Challenge</span>
+    Code Building <span>Challenge</span>
   </h1>
 
   <!-- RULES -->
-  <div class="rules-box">
-    <h2>Instructions</h2>
+  <div class="instruction-box">
+  <h2 class="instruction-title"><u>Instructions</u>:</h2>
 
-    <p id="rules-text">
-      • Read each question carefully <br>
-      • Select correct lines to build program <br>
-      • Do not refresh the page <br>
-      • Submit all answers before final submit
-    </p>
-  </div>
+  <ul class="instruction-list">
+    <li>Read each question carefully</li>
+    <li>Select correct lines to build program</li>
+    <li>Do not refresh the page</li>
+    <li>Submit all answers before final submit</li>
+  </ul>
+</div>
 
+<button id="startBtn" class="start-btn hidden" onclick="startCompetition()">
+  Start Challenge
+</button>
   <!-- TIMER -->
   <div id="timer-box">
   ⏳ Starts in: <span id="timer">00:10</span>
 </div>
-
-  <!-- START BUTTON -->
-  <button id="startBtn" class="btn primary hidden" onclick="startCompetition()">
-    Start
-  </button>
 
 </div>
 

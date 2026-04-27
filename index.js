@@ -1,88 +1,112 @@
-const db = require("./db");
+require("./backend/mongo");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const fs = require("fs");
 const path = require("path");
-
+const Timer = require("./backend/models/Timer");
 const app = express();
 const PORT = 3000;
+async function initTimers() {
+
+  let t1 = await Timer.findOne({ name: "timer1" });
+  let t2 = await Timer.findOne({ name: "timer2" });
+
+  if (!t1) {
+    await Timer.create({ name: "timer1", value: 10 });
+    console.log("✅ Timer1 created");
+  }
+
+  if (!t2) {
+    await Timer.create({ name: "timer2", value: 60 });
+    console.log("✅ Timer2 created");
+  }
+
+  console.log("✅ Timers initialized");
+}
+
+// ✅ Mongo Models
+const User = require("./backend/models/User");
+const Submission = require("./backend/models/Submission");
+const Question = require("./backend/models/Questions");
+const questionRoutes = require("./backend/routes/questions");
+
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static("public"));
 app.use(express.json());
+app.use("/questions", questionRoutes);
 
-// =========================
-// 🔥 FILE PATHS
-// =========================
+async function initTimers() {
 
-const participantsFile = path.join(__dirname, "participants.json");
-const timerFile = path.join(__dirname, "timer.json");
+  const t1 = await Timer.findOne({ name: "timer1" });
+  const t2 = await Timer.findOne({ name: "timer2" });
 
-// =========================
-// 🔥 INIT FILES
-// =========================
+  if (!t1) {
+    await Timer.create({ name: "timer1", value: 10 });
+    console.log("✅ Timer1 created");
+  }
 
-if (!fs.existsSync(participantsFile)) {
-  fs.writeFileSync(participantsFile, JSON.stringify([]));
+  if (!t2) {
+    await Timer.create({ name: "timer2", value: 60 });
+    console.log("✅ Timer2 created");
+  }
+
 }
-
-if (!fs.existsSync(timerFile)) {
-  fs.writeFileSync(timerFile, JSON.stringify({ time: 10 }));
-}
-
-// =========================
-// TEST ROUTE
-// =========================
 
 app.get("/", (req, res) => {
   res.send("Server is running!");
 });
 
 // =========================
-// 🔥 TIMER APIs
+// 🔥 TIMER APIs (UNCHANGED)
 // =========================
 
-app.post("/set-timer", (req, res) => {
-  const newTime = req.body.time;
 
-  fs.writeFileSync(
-    timerFile,
-    JSON.stringify({ time: newTime }, null, 2)
+app.post("/set-timer", async (req, res) => {
+
+  await Timer.findOneAndUpdate(
+    { name: "timer1" },
+    { value: req.body.time },
+    { upsert: true }   // 🔥 THIS FIX
   );
 
-  res.json({ message: "Timer updated successfully" });
+  res.json({ message: "Timer1 updated" });
 });
 
-app.get("/get-timer", (req, res) => {
-  try {
-    const data = JSON.parse(fs.readFileSync(timerFile));
-    res.json({ time: data.time });
-  } catch {
-    res.json({ time: 10 });
-  }
-});
+app.post("/set-timer2", async (req, res) => {
 
-// TIMER 2
-let timer2 = 60;
+  await Timer.findOneAndUpdate(
+    { name: "timer2" },
+    { value: req.body.time },
+    { upsert: true }   // 🔥 THIS FIX
+  );
 
-app.post("/set-timer2", (req, res) => {
-  timer2 = req.body.time;
   res.json({ message: "Timer2 updated" });
 });
 
-app.get("/get-timer2", (req, res) => {
-  res.json({ time: timer2 });
+app.get("/get-timer", async (req, res) => {
+
+  const timer = await Timer.findOne({ name: "timer1" });
+
+  res.json({ time: timer ? timer.value : 10 });
+
 });
+app.get("/get-timer2", async (req, res) => {
 
+  const timer = await Timer.findOne({ name: "timer2" });
+
+  res.json({ time: timer ? timer.value : 60 });
+
+});
 // =========================
-// 🔥 AUTH APIs
+// 🔥 AUTH APIs (FIXED TO MONGO)
 // =========================
 
-// SIGNUP ✅ FIXED
-app.post("/signup", (req, res) => {
+// SIGNUP
+app.post("/signup", async (req, res) => {
 
   const { name1, name2, password } = req.body;
 
@@ -92,91 +116,89 @@ app.post("/signup", (req, res) => {
 
   const combinedName = name1 + " & " + name2;
 
-  const insertQuery = "INSERT INTO users (name, password) VALUES (?, ?)";
+  try {
+    const existing = await User.findOne({ name: combinedName });
 
-  db.run(insertQuery, [combinedName, password], function (err) {
-
-    if (err) {
+    if (existing) {
       return res.json({ message: "User already exists" });
     }
 
+    await User.create({
+      name: combinedName,
+      password: password
+    });
+
     res.json({ message: "Signup successful" });
 
-  });
+  } catch {
+    res.json({ message: "Error creating user" });
+  }
 
 });
 
 // LOGIN
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
 
   const { name, password } = req.body;
 
-  const selectQuery = "SELECT * FROM users WHERE name = ? AND password = ?";
+  try {
+    const user = await User.findOne({ name, password });
 
-  db.get(selectQuery, [name, password], (err, row) => {
-
-    if (err) {
-      return res.json({ message: "Error occurred" });
-    }
-
-    if (!row) {
+    if (!user) {
       return res.json({ message: "Invalid Username or Password" });
     }
 
     res.json({ message: "Login successful" });
 
-  });
+  } catch {
+    res.json({ message: "Error occurred" });
+  }
 
 });
 
 // =========================
-// 🔥 SUBMISSION API
+// 🔥 SUBMISSION API (FIXED)
 // =========================
 
-app.post("/submit", (req, res) => {
-
-  let participants = [];
+app.post("/submit", async (req, res) => {
 
   try {
-    const data = fs.readFileSync(participantsFile);
-    participants = JSON.parse(data);
-  } catch {
-    participants = [];
-  }
 
-  // ✅ CHECK duplicate using single name
-  if (
-    participants.find(
-      p => p.name.toLowerCase().trim() === req.body.name.toLowerCase().trim()
-    )
-  ) {
-    return res.json({ message: "Already submitted" });
-  }
+    // ✅ CHECK duplicate
+    const exists = await Submission.findOne({
+      name: req.body.name
+    });
 
-  // ✅ SAVE properly
-  participants.push({
-  name: req.body.name || "UNKNOWN",
-  code: req.body.code || ""
+    if (exists) {
+      return res.json({ message: "Already submitted" });
+    }
+
+    // ✅ SAVE
+    await Submission.create({
+  name: req.body.name,
+  answers: req.body.answers
 });
 
-  fs.writeFileSync(
-    participantsFile,
-    JSON.stringify(participants, null, 2)
-  );
+    console.log("Received from frontend:", req.body);
 
-  res.json({ message: "Submission saved successfully" });
-  console.log("Received from frontend:", req.body);
+    res.json({ message: "Submission saved successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ message: "Error saving data" });
+  }
 
 });
+
 // =========================
 // GET PARTICIPANTS
 // =========================
 
-app.get("/participants", (req, res) => {
+app.get("/participants", async (req, res) => {
 
   try {
-    const data = fs.readFileSync(participantsFile);
-    res.json(JSON.parse(data));
+    const data = await Submission.find();
+    res.json(data);
   } catch {
     res.json([]);
   }
@@ -187,37 +209,23 @@ app.get("/participants", (req, res) => {
 // DELETE PARTICIPANT
 // =========================
 
-app.post("/delete-participant", (req, res) => {
+app.post("/delete-participant", async (req, res) => {
 
-  const { index, name } = req.body;
-
-  let participants = [];
+  const { id, name } = req.body;
 
   try {
-    participants = JSON.parse(fs.readFileSync(participantsFile));
-  } catch {
-    participants = [];
-  }
 
-  participants.splice(index, 1);
+    await Submission.findByIdAndDelete(id);
 
-  fs.writeFileSync(
-    participantsFile,
-    JSON.stringify(participants, null, 2)
-  );
-
-  const deleteQuery = "DELETE FROM users WHERE name = ?";
-
-  db.run(deleteQuery, [name], function (err) {
-
-    if (err) {
-      console.error(err);
-      return res.json({ message: "Error deleting user" });
-    }
+    // delete user also
+    await User.deleteOne({ name });
 
     res.json({ message: "User fully deleted" });
 
-  });
+  } catch (err) {
+    console.error(err);
+    res.json({ message: "Error deleting user" });
+  }
 
 });
 
@@ -225,63 +233,78 @@ app.post("/delete-participant", (req, res) => {
 // CLEAR ALL
 // =========================
 
-app.post("/clear-all", (req, res) => {
-  fs.writeFileSync(participantsFile, "[]");
+app.post("/clear-all", async (req, res) => {
+
+  await Submission.deleteMany();
   res.json({ message: "All data cleared" });
+
 });
 
+// =========================
 // DELETE ONLY DATA
-app.post("/delete-data-only", (req, res) => {
+// =========================
 
-  const { index } = req.body;
+app.post("/delete-data-only", async (req, res) => {
 
-  let participants = [];
+  const { id } = req.body;
 
   try {
-    participants = JSON.parse(fs.readFileSync(participantsFile));
+    await Submission.findByIdAndDelete(id);
+    res.json({ message: "Submission data deleted" });
   } catch {
-    participants = [];
+    res.json({ message: "Error deleting data" });
   }
-
-  participants.splice(index, 1);
-
-  fs.writeFileSync(
-    participantsFile,
-    JSON.stringify(participants, null, 2)
-  );
-
-  res.json({ message: "Submission data deleted" });
 
 });
 
 // =========================
-// CHECK PARTICIPANT ✅ FIXED
+// CHECK PARTICIPANT
 // =========================
 
-app.get("/check-participant/:name", (req, res) => {
+app.get("/check-participant/:name", async (req, res) => {
 
-  const name = req.params.name.toLowerCase().trim();
-
-  let participants = [];
+  const name = req.params.name;
 
   try {
-    participants = JSON.parse(fs.readFileSync(participantsFile));
+    const exists = await Submission.findOne({ name });
+    res.json({ exists: !!exists });
   } catch {
-    participants = [];
+    res.json({ exists: false });
   }
-
-  const exists = participants.some(
-    p => p.name.toLowerCase().trim() === name
-  );
-
-  res.json({ exists });
 
 });
 
-// =========================
-// START SERVER
-// =========================
+app.post("/add-questions", async (req, res) => {
 
+  try {
+
+    await Question.deleteMany(); // clear old questions
+
+    await Question.insertMany(req.body.questions);
+
+    res.json({ message: "Questions updated successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ message: "Error saving questions" });
+  }
+
+});
+app.get("/get-questions", async (req, res) => {
+
+  try {
+
+    const questions = await Question.find();
+
+    res.json(questions);
+
+  } catch (err) {
+    console.error(err);
+    res.json([]);
+  }
+
+});
+initTimers();
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
