@@ -37,7 +37,7 @@ body {
 
 /* TEXT */
 .top-text {
-  font-size: 18px;
+  font-size: 25px;
   letter-spacing: 3px;
   color: #9d8cff;
   margin-bottom: 20px;
@@ -513,4 +513,46 @@ textarea:focus {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+.question-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid #7c3aed;
+  box-shadow: 0 0 25px rgba(43, 14, 93, 0.3);
+  padding: 15px 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  max-width: 800px;
+}
+
+.question-text {
+  color: #e5e7eb;
+  line-height: 1.6;
+}
+.college-header {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.college-logo {
+  width: 80px;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.college-name {
+  color: #a855f7;
+  font-size: 25px;
+  letter-spacing: 1px;
+}
+.college-name {
+  color: #a78bfa;
+  text-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed;
+}
+.college-logo {
+  width: 80px;        /* adjust size */
+  height: 80px;       /* must be equal for perfect circle */
+  border-radius: 50%; /* 🔥 makes it round */
+  object-fit: cover;  /* prevents stretching */
+  border: 2px solid #7c3aed; /* optional glow border */
 }

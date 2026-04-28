@@ -56,7 +56,16 @@ function loadQuestion() {
 
   const q = questions[currentQuestion];
 
-  container.innerHTML = `<h2 class="question">${q.question}</h2>`;
+  container.innerHTML = `
+  <div class="question-box">
+  <h2 class="question">
+    Question ${currentQuestion + 1}
+  </h2>
+    <p class="question-text">
+      ${q.question.replace(/\n/g, "<br>")}
+    </p>
+  </div>
+`;
 
   q.lines.forEach((lineOptions, index) => {
 
@@ -329,23 +338,62 @@ function autoSubmit() {
 
   if (isSubmitted) return;
   isSubmitted = true;
-localStorage.setItem(`submitted_${username}`, "true");
-  
-console.log("Submitting:", username);
-console.log("Sending to server:", {
-  name: username,
-  code: allPrograms.join("\n\n")
-});
-  fetch("/submit", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-  name: username,
-  code: allPrograms.join("\n\n")
-})
-  });
+
+  try {
+
+    const finalAnswers = [];
+
+    questions.forEach((q, i) => {
+
+      // ✅ Case 1: Already submitted questions
+      if (allPrograms[i]) {
+        finalAnswers.push({
+          question: q.question,
+          answer: allPrograms[i]
+        });
+      }
+
+      // ✅ Case 2: Current question (partially or fully selected but not submitted)
+      else if (i === currentQuestion && Object.keys(selectedLines).length > 0) {
+
+        let program = "";
+
+        q.lines.forEach((_, index) => {
+          if (selectedLines[index]) {
+            program += selectedLines[index];
+          }
+        });
+
+        if (program.trim() !== "") {
+          finalAnswers.push({
+            question: q.question,
+            answer: program
+          });
+        }
+      }
+
+      // ❌ Case 3: Unattempted → skip
+    });
+
+    console.log("Auto submitting:", {
+      name: username,
+      answers: finalAnswers
+    });
+
+    fetch("/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: username,
+        answers: finalAnswers
+      })
+    });
+
+  } catch (err) {
+    console.error("Auto submit error:", err);
+  }
 
   showTimeOverPopup();
 }
