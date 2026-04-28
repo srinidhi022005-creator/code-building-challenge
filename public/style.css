@@ -37,7 +37,7 @@ body {
 
 /* TEXT */
 .top-text {
-  font-size: 12px;
+  font-size: 18px;
   letter-spacing: 3px;
   color: #9d8cff;
   margin-bottom: 20px;
@@ -46,6 +46,7 @@ body {
 h1 {
   font-size: 64px;
   font-weight: 700;
+  text-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed;
 }
 
 h1 span {
@@ -476,4 +477,40 @@ textarea:focus {
 /* Hidden initially */
 .hidden {
   display: none;
+}
+.event-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff; /* change based on your theme */
+}
+
+.event-header h1 {
+    font-size: 75px;
+    font-weight: bold;
+    letter-spacing: 3px;
+}
+
+.event-header h2 {
+    font-size: 40px;
+    margin-top: 5px;
+    color: #a855f7; /* optional highlight */
+    text-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed;
+}
+
+.event-header h3 {
+    font-size: 40px;
+    margin-top: 3px;
+    color:#ffffff;
+    text-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed;
+}
+.event-header h1 {
+    text-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed;
+}
+.event-header {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
