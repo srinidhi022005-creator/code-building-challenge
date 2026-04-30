@@ -334,7 +334,7 @@ function startCompetitionTimer() {
 /* AUTO SUBMIT */
 /* ========================= */
 
-function autoSubmit() {
+async function autoSubmit() {
 
   if (isSubmitted) return;
   isSubmitted = true;
@@ -380,7 +380,8 @@ function autoSubmit() {
       answers: finalAnswers
     });
 
-    fetch("/submit", {
+    // 🔥 ONLY CHANGE: added await
+    await fetch("/submit", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -395,6 +396,7 @@ function autoSubmit() {
     console.error("Auto submit error:", err);
   }
 
+  // 🔥 moved after await (so it waits)
   showTimeOverPopup();
 }
 
